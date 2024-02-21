@@ -1,0 +1,56 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-4">Menu</h1>
+
+  <%= form_with(model: @order) do |form| %>
+    <% if @order.errors.any? %>
+      <div class="text-red-500">
+        <h2><%= pluralize(@order.errors.count, "error") %> prohibited this order from being saved:</h2>
+        <ul>
+          <% @order.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <turbo-frame id="total-cost-frame">
+      <table class="min-w-full mb-4" data-controller="bill">
+        <thead>
+          <tr>
+            <th class="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Meal</th>
+            <th class="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Price</th>
+            <th class="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+            <th class="px-6 py-3 bg-gray-50"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @meals.each do |meal| %>
+            <tr>
+              <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900"><%= meal.meals_name %></td>
+              <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900" data-bill-target="mealPrice"><%= number_to_currency(meal.meals_price, precision: 2) %></td>
+              <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900">
+                <div class="quantity-input">
+                  <%= form.fields_for :order_items, OrderItem.new do |order_item_fields| %>
+                    <%= order_item_fields.hidden_field :meal_id, value: meal.id %>
+                    <%= order_item_fields.hidden_field :order_id, value: @order.id %>
+                    <%= order_item_fields.number_field :quantity, min: 0, class: "form-input", "data-bill-target": "quantity", "data-action": "input->bill.updateTotalCost" %>
+                  <% end %>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-no-wrap text-right text-sm leading-5 font-medium">
+                <span data-bill-target="totalCost">Total Cost:</span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </turbo-frame>
+
+    <div class="mb-4 flex justify-end mr-6 font-medium text-md">
+      <span>Total Bill:</span>
+    </div>
+
+    <%= form.number_field :user_id, value: current_user.id, class: "hidden" %>
+    <%= form.submit "Place Order", class: "bg-red-400 text-white px-4 py-2 rounded hover:bg-red-700 cursor-pointer" %>
+  <% end %>
+</div>
+ 

@@ -1,0 +1,25 @@
+<div class="container bg-[#34495E] w-full mt-24 p-12 m-auto rounded-lg shadow-lg shadow-gray-400 max-h-fit overflow-auto">
+  <h1 class="text-white text-2xl font-semibold mb-4">Edit Meals Details</h1>
+
+  <%= form_with model: @meal do |form| %>
+    <div class="mb-4">
+      <label for="meals_name" class="text-white">Meals Name</label>
+      <%= form.text_field :meals_name, class: "w-full p-2 rounded-md" %>
+    </div>
+    
+    <div class="mb-4">
+      <label for="meals_description" class="text-white">Meals Description</label>
+      <%= form.text_area :meals_description, class: "w-full p-2 rounded-md" %>
+    </div>
+
+    <div class="mb-4">
+      <label for="meals_price" class="text-white">Meals Price</label>
+      <%= form.number_field :meals_price, class: "w-full p-2 rounded-md" %>
+    </div>
+
+    <div class="mb-4">
+      <%= form.submit 'Update Meals', class: "bg-red-400 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+    </div>
+  <% end %>
+</div>
+ 

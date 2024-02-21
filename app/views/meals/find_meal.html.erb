@@ -1,0 +1,110 @@
+<h1 class="text-2xl font-bold m-4">Meals</h1>
+<div class= flex>
+<%= form_tag(search_results_path, method: :get, class: "flex items-center") do %>
+  <%= text_field_tag :search, @meal_name, class: "m-4 border rounded-md px-2 py-1", placeholder: "Search for a recipe" %>
+  <%= submit_tag "Search", class: "text-sm bg-red-400 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md cursor-pointer" %>
+<% end %>
+  <span class="flex pl-2 pr-2 items-center">or</span>
+  <button class="text-sm m-4 bg-red-400 ml-1 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md"><%= link_to "Add Meal Manually", add_meal_path%></button>
+</div>
+
+<div class="grid lg:grid-cols-3">
+  <% @list["meals"].each do |meal| %>
+    <div class="card meal bg-white rounded overflow-hidden shadow-md m-4 hover:shadow-lg">
+      <div>
+        <img class="w-full h-32 sm:h-48 object-cover" src="<%= meal["strMealThumb"] %>" alt="">
+        <div class="m-4 h-full">
+          <h3 class="font-bold"><%= meal["strMeal"] %></h3>
+          <p class="font-semibold"><%= meal["strCategory"] %></p>
+          <p class="text-gray-500 text-sm"><%= meal["strInstructions"] %></p>
+          
+          <div class="mt-2 text-sm h-full">
+            <p>Ingredients: </p>
+            <% (1..20).each do |i| %>
+              <% ingredient = meal["strIngredient#{i}"] %>
+              <% measure = meal["strMeasure#{i}"] %>
+              <% next if ingredient.blank? || measure.blank? %>
+              <% value = measure.match(/\d+\.?\d*/) %>
+              <% unit = measure.match(/[a-zA-Z]+/) %>
+              <p class="text-gray-500"><%= "#{ingredient} - #{value} #{unit}" %></p>
+            <% end %>
+          </div>
+          
+          <button class="add-meal-btn bg-red-400 text-sm mt-2 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md" data-meal="<%= meal.to_json %>">Add Meal</button>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+  const addMealButtons = document.querySelectorAll(".add-meal-btn");
+
+  addMealButtons.forEach(button => {
+    button.addEventListener("click", (event) => {
+      const mealData = JSON.parse(event.target.dataset.meal);
+      addMealAndIngredients(mealData);
+    });
+  });
+
+  function addMealAndIngredients(mealData) {
+    // Extract meal details from mealData
+    const mealParams = {
+      meals_name: mealData.strMeal,
+      meals_description: mealData.strCategory,
+      meals_price: 0,
+      meals_directions: mealData.strInstructions
+    };
+    
+    // Extract ingredients from mealData
+      const ingredients = [];
+    for (let i = 1; i <= 20; i++) {
+      const ingredient = mealData[`strIngredient${i}`];
+      const measure = mealData[`strMeasure${i}`];
+      if (ingredient && measure) {
+        const value = measure.match(/\d+\.?\d*/);
+        const unit = measure.match(/[a-zA-Z]+/);
+        ingredients.push({
+          ingredients_name: ingredient,
+          quantity: value ? value[0] : "",
+          unit: unit ? unit[0] : "pcs " // Use an empty string if unit is not defined
+        });
+      }
+    }
+
+    // Construct the payload for the POST request
+    const payload = {
+      meal: mealParams,
+      ingredients: ingredients
+    };
+
+    // Get the CSRF token from the meta tag in your HTML layout
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    // Construct the headers with the CSRF token
+    const headers = {
+      "Content-Type": "application/json",
+      "X-CSRF-Token": csrfToken
+    };
+
+    // Send the POST request with the headers
+    fetch("/meals/add_meals_fromAPI", {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(payload)
+    })
+    .then(response => {
+      if (response.ok) {
+        console.log("Meal added successfully");
+      } else {
+        console.error("Failed to add meal");
+      }
+    })
+    .catch(error => {
+      console.error("Error:", error);
+    });
+  }
+});
+
+</script>

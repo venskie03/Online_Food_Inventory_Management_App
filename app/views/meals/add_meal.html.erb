@@ -1,0 +1,137 @@
+<div class="container mx-auto">
+  <h1 class="text-3xl font-bold mb-4 mt-4">Add a meal</h1>
+
+ <div class="h-96 w-full overflow-auto">
+   <%= form_with model: @meal, url: meals_path do |form| %>
+    <div class="mb-4">
+      <%= form.label :meals_name, class: "block text-gray-700 text-sm font-bold mb-2" %>
+      <%= form.text_field :meals_name, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    </div>
+
+    <div class="mb-4">
+      <%= form.label :meals_description, class: "block text-gray-700 text-sm font-bold mb-2" %>
+      <%= form.text_area :meals_description, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    </div>
+
+    <div class="mb-4">
+      <%= form.label :meals_price, class: "block text-gray-700 text-sm font-bold mb-2" %>
+      <%= form.number_field :meals_price, min: 0, class: "form-input shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    </div>
+
+<div class="grid">
+  <div id="directions">
+    <h1>Directions</h1>
+    <input type="text" name="meal[meals_directions][]" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+    <% @meal.meals_directions.each_with_index do |direction, index| %>
+      <div class="mb-4">
+        <%= form.text_field "meals_directions[#{index}]", value: direction, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+      </div>
+    <% end %>
+  </div>
+   <span id ="add-direction-btn" class="text-red-400 hover:text-red-700 cursor-pointer">+Add Direction</span>
+</div>
+ <div class="grid">
+   <div id="nutritions">
+    <h1>Nutritions</h1>
+    <input type="text" name="meal[meals_nutritions][]" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+    <% @meal.meals_nutritions.each_with_index do |nutrition, index| %>
+      <div class="mb-4">
+        <%= form.text_field "meals_nutritions[#{index}]", value: nutrition, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+      </div>
+    <% end %>
+  </div>
+ <span id ="add-nutritions-btn" class="text-red-400 hover:text-red-700 cursor-pointer">+Add Nutrition</span>
+ </div>
+ </div>
+
+
+    <div class="mb-4">
+      <%= form.submit class: "bg-red-400 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer mt-2" %>
+    </div>
+  <% end %>
+
+<div class="all_meals h-96 overflow-auto">
+   <input type="text" id="SearchInput" placeholder="Search by Meal's Name" class="h-10 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 w-64">
+      <button onclick="searchmealsname()" class="ml-2 px-4 py-2 bg-red-400 text-white rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Search</button>
+  <table id="mealstable" class="min-w-full divide-y divide-gray-200">
+    <thead>
+      <tr>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operation</th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      <% @all_meals.each do |meal| %>
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap"><%= meal.meals_name %></td>
+          <td class="px-6 py-4 whitespace-nowrap"><%= meal.meals_description %></td>
+          <td class="px-6 py-4 whitespace-nowrap"><%= number_to_currency(meal.meals_price, precision: 2) %></td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <%= link_to add_ingredients_path(meal_id: meal.id) do%>
+            <box-icon name='add-to-queue' animation='tada' ></box-icon>
+            <%end%>
+
+            <%= link_to edit_meals_path(id: meal.id) do%>
+               <box-icon name='edit' animation='tada' ></box-icon>
+            <%end%> 
+          <%= form_with(model: meal, method: :delete, data: { turbo_confirm: 'Are you sure?' }, class: 'inline-block') do |form| %>
+            <%= form.button type: :submit, class: 'text-red-500' do %>
+              <box-icon name='trash-alt' type='solid' animation='tada'></box-icon>
+            <% end %>
+          <% end %>
+            </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+</div>
+<script>
+  function searchmealsname() {
+    let input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById("SearchInput");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("mealstable");
+    tr = table.getElementsByTagName("tr");
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("td")[0];
+      if (td) {
+        txtValue = td.textContent || td.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+  }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const addDirectionBtn = document.getElementById('add-direction-btn');
+  const directionsContainer = document.getElementById('directions');
+  const addNutritionsBtn = document.getElementById('add-nutritions-btn');
+  const nutritionsContainer = document.getElementById('nutritions');
+  let directionIndex = 0;
+  let nutritionIndex = 0;
+
+  addDirectionBtn.addEventListener('click', (event) => {
+    event.preventDefault();
+    const newDirectionField = document.createElement('div');
+    newDirectionField.innerHTML = `<input type="text" name="meal[meals_directions][]" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mt-4">`;
+    directionsContainer.appendChild(newDirectionField);
+    directionIndex++;
+  });
+
+  addNutritionsBtn.addEventListener('click', (event) => {
+    event.preventDefault();
+    const newNutritionField = document.createElement('div');
+    newNutritionField.innerHTML = `<input type="text" name="meal[meals_nutritions][]" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mt-4">`;
+    nutritionsContainer.appendChild(newNutritionField);
+    nutritionIndex++;
+  });
+});
+
+</script>
+

@@ -1,0 +1,56 @@
+<div class="container mx-auto">
+  <h1 class="text-3xl font-bold mb-4 mt-4">Add an Ingredient</h1>
+  <%= form_with model: @ingredient, url: create_ingredients_url, method: :post do |form| %>
+    <div class="mb-4">
+      <%= form.label :ingredients_name, class: "block text-gray-700 text-sm font-bold mb-2" %>
+      <%= form.text_field :ingredients_name, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    </div>
+    <div class="mb-4">
+      <%= form.label :quantity, class: "block text-gray-700 text-sm font-bold mb-2" %>
+      <%= form.number_field :quantity, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    </div>
+    <div class="mb-4">
+      <%= form.label :unit, class: "block text-gray-700 text-sm font-bold mb-2" %>
+      <%= form.text_field :unit, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+    </div>
+    <div class="mb-4">
+      <%= form.submit class: "bg-red-400 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer" %>
+    </div>
+  <% end %>
+  <h2 class="text-2xl font-bold mb-4 mt-4">Directions:</h2>
+  <div class="meals-info mb-4 text-gray-600">
+    <% @meals_info.each do |info| %>
+     <p>
+       <% info.meals_directions.each do |direction| %>
+           <%= direction %>
+      <% end %>
+     </p>
+    <% end %>
+  </div>
+  <div class="meals-info">
+    <h2 class="text-2xl font-bold mb-4 mt-4">Nutritions:</h2>
+    <% @meals_info.each do |info| %>
+        <% info.meals_nutritions.each do |nutritions| %>
+          <%= nutritions %>
+        <% end %>
+    <% end %>
+  </div>
+  <table class="min-w-full">
+    <thead>
+      <tr>
+        <th class="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Ingredients</th>
+        <th class="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+        <th class="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @list_ingredients.each do |ingredient| %>
+        <tr>
+          <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900"><%= ingredient.ingredients_name %></td>
+          <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900"><%= ingredient.quantity %></td>
+          <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900"><%= ingredient.unit %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
